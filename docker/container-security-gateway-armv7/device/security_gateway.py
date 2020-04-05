@@ -76,6 +76,7 @@ class security_gateway:
         # Connect and subscribe to AWS IoT
         self.client_state = "CONNECT"
         self.logger.info(self.client_state)
+        self.logger.info(self.client_id)
         self.iot_client.connect()
         time.sleep(2)
        
@@ -110,8 +111,15 @@ class security_gateway:
         json_msg = json.dumps(msg)
         self.client_state = "UPDATE_PENDING"
         self.logger.info(self.client_state)
+        self.logger.info(json_msg)
         self.iot_client.publish(self.update_topic, json_msg, 1)
           
+    def load_msg(self, message):
+        # older versions of python json does not load bytes
+        if isinstance(message, bytes):
+           message = message.decode('utf-8')
+        return json.loads(message)
+
     def updateDeltaCallback(self, client, userdata, message):
         try:	
             msg=message.payload
@@ -192,7 +200,7 @@ class security_gateway:
         self.logger.info("Enter handleUpdateRejectedMessage")
        
         try:
-            msg=json.loads(message)
+            msg=self.load_msg(message)
             self.logger.info(msg)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -204,7 +212,7 @@ class security_gateway:
         self.logger.info("Enter handleUpdateAcceptedMessage")
        
         try:
-            msg=json.loads(message)
+            msg=self.load_msg(message)
             self.logger.info(msg)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -217,7 +225,8 @@ class security_gateway:
         self.logger.info("Enter handleGetRejectedMessage")
        
         try:
-            msg=json.loads(message)
+            self.logger.info(self.client_state)
+            msg=self.load_msg(message)
             self.logger.info(msg)
             if msg['code'] == 404:
                 self.reportState()
@@ -233,7 +242,7 @@ class security_gateway:
         self.logger.info("Enter handleGetAcceptedMessage")
        
         try:
-            msg=json.loads(message)
+            msg=self.load_msg(message)
             state = msg['state']
             self.reported = self.getAttrValue(state, "reported")
             self.desired = self.getAttrValue(state, "desired")
@@ -248,7 +257,8 @@ class security_gateway:
         self.logger.info("Enter handleUpdateDocumentsMessage")
        
         try:
-            msg=json.loads(message)
+            self.logger.info(self.client_state)
+            msg=self.load_msg(message)
             self.logger.info( msg)
             
             current = msg["current"]
@@ -265,9 +275,11 @@ class security_gateway:
         self.logger.info("Enter handleUpdateDeltaMessage")
        
         try:
-            msg=json.loads(message)
+            self.logger.info(self.client_state)
+            msg=self.load_msg(message)
             self.logger.info(msg)
-            self.delta = msg["state"]  
+            self.delta = msg['state']
+            self.logger.info(self.delta)
         except:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             traceback.print_tb(exc_traceback, limit=20, file=sys.stdout)
@@ -285,6 +297,8 @@ class security_gateway:
                     self.reported = self.delta
         
                 self.reportState()
+            else: 
+                self.logger.info("No delta to apply")
             self.client_state = "SYNCED"
             self.logger.info(self.client_state)
             self.logger.info("Exit processDelta")
@@ -295,7 +309,7 @@ class security_gateway:
             self.logger.info("Exit handleUpdateDeltaMessage")
             
     def doSecurityChecks(self):
-        self.logger.info("do security checks")
+        # dummy sleep
         time.sleep(2)
         
     def start(self):

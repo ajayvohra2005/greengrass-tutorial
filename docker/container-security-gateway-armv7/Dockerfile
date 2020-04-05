@@ -16,5 +16,5 @@ RUN cd aws-iot-device-sdk-python && python setup.py install
 
 COPY device/security_gateway.py /security_gateway.py
 COPY device/start.sh /start.sh
-COPY device/superior-recon /superior-recon
+COPY device/thing /thing
 ENTRYPOINT ["/start.sh"]
