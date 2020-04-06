@@ -138,12 +138,12 @@ An example shadow document for testing is shown below:
 }
 ```
 
-## Deploying a Lambda function that interacts with local web service
+## Running a Lambda function in GreenGrass that interacts with local web service
 In this example, we deploy an [AWS Lambda](https://aws.amazon.com/lambda/features/) function to the AWS IoT GreenGrass Group. We communicate with this Lambda function from the AWS IoT cloud by sending message to a named [AWS IoT Topic](https://docs.aws.amazon.com/iot/latest/developerguide/topics.html) 
 
 The named AWS IoT topic is wired to the Lambda function using [AWS IoT GreenGrass Subscription](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html). The Lambda function makes a REST API request to the local `hello world` web service we dployed at the beginning of this tutorial. The Lambda function receives a JSON reponse frome the local web service, and uses the JSON to update its AWS IoT cloud shaodw document. The Lambda function is wired to the AWS IoT cloud shadow using GreenGrass subscription.
 
-### Package and deploy the Lambda function
+### Package and deploy the Lambda function in AWS Console
 
 The Python code for the Lambda function is in [gg-hello-connector.py](lambda/gg-hello-connector/gg-hello-connector.py) file.
 To package and deploy the Lambda function we execute following steps:
@@ -152,8 +152,27 @@ To package and deploy the Lambda function we execute following steps:
   - `./lambda-deployment.sh  gg-hello-connector requests greengrasssdk` to create a Lambda deployment package
   - `cd gg-hello-connector`
   -  `zip -g ../gg-hello-connector.zip  gg-hello-connector.py` to add the Python code file to the package
-  - Use AWS Lambda console to deploy the `gg-hello-connector.zip` package to create a new AWS Lambda function named `gg-hello-connector`
+  - Use AWS management console to deploy the `gg-hello-connector.zip` package to create a new AWS Lambda function named `gg-hello-connector`
   - Publish the Lambda function as a new version
   - [Configure the Lambda function for the AWS IoT GreenGrass Group](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html)
   - [Configure AWS IoT GreenGrass subscription](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html) to connect a named AWS IoT cloud topic to the Lambda function
   - Configure AWS IoT GreenGrass subscription to connect Lambda function to its AWS IoT shadow topic
+  
+ ### Test Lambda function running in GreenGrass
+ 
+ Using AWS IoT Console Test function, send any JSON message to the named AWS IoT topic you configured in the GreenGrass Group subscription in the previous step. 
+ 
+ If the Lambda function is successfully running in the GreenGrass, when you send a JSON test message to Lambda funtion on the named topic, the GreenGrass Core shadow should get updated with a JSON `hello world` message, as shown in the example below:
+```
+{
+  "desired": {
+    "welcome": "aws-iot"
+  },
+  "reported": {
+    "welcome": "aws-iot",
+    "timestamp": 1585513082.9430707,
+    "count": 2,
+    "message": "Hello world!"
+  }
+}
+```
