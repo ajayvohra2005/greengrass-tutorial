@@ -23,5 +23,7 @@ In this use case, we run a hello world web service in AWS IoT GreenGrass on Rasp
 
 ### Setup EC2 instance for development
   - `ssh` into EC2 instance using the SSH key you used to launch the EC2 instance.
-  - Run `.docker/arm-docker.sh` to install Docker engine on the development machine
-  - Run `./docker/build-tools/build-and-deploy.sh <aws-region>` to
+  - `cd docker`
+  - `./arm-docker.sh` to install Docker engine on the development machine
+  - `cd container-hello-armv7`
+  - `./build-tools/build-and-deploy.sh <aws-region>` to build hello world web service Docker image
