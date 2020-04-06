@@ -151,6 +151,7 @@ To package and deploy the Lambda function we execute following steps:
   - `cd lambda`
   - `./lambda-deployment.sh  gg-hello-connector requests greengrasssdk` to create a Lambda deployment package
   - `cd gg-hello-connector`
+  - Edit [gg-hello-connector.py](lambda/gg-hello-connector/gg-hello-connector.py) to set `thingName=` to your GreenGrass Core name
   -  `zip -g ../gg-hello-connector.zip  gg-hello-connector.py` to add the Python code file to the package
   - Use AWS management console to deploy the `gg-hello-connector.zip` package to create a new AWS Lambda function named `gg-hello-connector`
   - Publish the Lambda function as a new version
