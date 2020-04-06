@@ -1,10 +1,11 @@
 # AWS IoT GreenGrass Tutorial
 
 This is an *advanced* tutorial on following [AWS IoT GreenGrass](https://aws.amazon.com/greengrass/) use cases:
-  - Deploying a web service using [Docker Application Deployment](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) connector
-  - Deploying an AWS IoT device using Docker Application Deployment coneector
+  - Running a `hello world` web service using [Docker Application Deployment](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) connector
+  - Running an AWS IoT device using Docker Application Deployment coneector
+  - Running a Lambda function in GreenGrass that interacts with the `hello world` local web service
 
-The tutorial does not detail every step, encourgaing the reader to explore the [Getting started with AWS IoT GreenGrass](https://docs.aws.amazon.com/greengrass/latest/developerguide/gg-gs.html) and learn in that process.
+The tutorial does not detail every step, encourgaing the reader to explore the [Getting started with AWS IoT GreenGrass](https://docs.aws.amazon.com/greengrass/latest/developerguide/gg-gs.html) modules and other AWS online documentation resources.
 
 This tutorial assumes GreenGrass core software version 1.10.
 
@@ -19,10 +20,10 @@ This tutorial assumes GreenGrass core software version 1.10.
 - [Install AWS IoT GreenGrass core software  on the Raspberry  device](https://docs.aws.amazon.com/greengrass/latest/developerguide/module2.html)
 - [Install Docker engine and Docker Compose](raspi/install-docker-engine.sh) on Raspberry Pi
  
-## Running a web service using Docker Application Deployment connector
+## Running the hello world web service using Docker Application Deployment connector
 
 ### Launch EC2 instance for development
-In this use case, we run a hello world web service in AWS IoT GreenGrass on Raspberry Pi (Armv7) using Docker Application Deployment Connector. For this use case, we need to build a Docker image for Armv7 architecture. Therefore, we need access to a developer machine based on Armv7 architecture. So let us [launch an Amazon EC2](https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-1-launch-instance.html) `a1.xlarge` instance using this [Amazon Machine Image](https://aws.amazon.com/marketplace/pp/Canonical-Group-Limited-Ubuntu-1604-LTS-Xenial-Arm/B07KTDC2HN), with 50 GB Amazon Elastic Block Store volume. Even though `a1.xlarge` instance is based on Arm64 architecture, it allows us to build Docker images for Armv7 architecture.
+In this use case, we run a `hello world` web service in AWS IoT GreenGrass on Raspberry Pi (Armv7) using Docker Application Deployment Connector. For this use case, we need to build a Docker image for Armv7 architecture. Therefore, we need access to a developer machine based on Armv7 architecture. So let us [launch an Amazon EC2](https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-1-launch-instance.html) `a1.xlarge` instance using this [Amazon Machine Image](https://aws.amazon.com/marketplace/pp/Canonical-Group-Limited-Ubuntu-1604-LTS-Xenial-Arm/B07KTDC2HN), with 50 GB Amazon Elastic Block Store volume. Even though `a1.xlarge` instance is based on Arm64 architecture, it allows us to build Docker images for Armv7 architecture.
 
 ### Build Docker image for web service
   - `ssh` into development EC2 instance using the SSH key you used to launch the EC2 instance.
@@ -35,13 +36,13 @@ In this use case, we run a hello world web service in AWS IoT GreenGrass on Rasp
   - `cd ..`
   
 ### Configure Docker Compose file
-Edit `docker-compose.yml` to set the ECR URI image you jsut noted above. Comment out the `device` part. Your `docker-compose.yml` should look as follows:
+Edit [docker-compose.yml](docker/docker-compose.yml) to configure `web image` with the ECR URI you just noted above. Comment out the `device` part. Your `docker-compose.yml` should look as follows:
   
 ```
 version: '3'
 services:
   web:
-    image: <ECR URI here>
+    image: <web service ECR URI here>
     ports:
       - '80:5000'
   #device:
@@ -49,11 +50,11 @@ services:
 ```
 ### Deploy Docker Application Connector
 
-Now that we have a Docker image pushed in the ECR and a `docker-compose.yml` defiend to run our web sevice container, we are ready to use the Docker Application Deployment Connector to deploy our web service to the AWS IoT GreenGrass. Conceptually, this involves following steps:
+Now that we have a Docker image pushed in the ECR and a `docker-compose.yml` defined to run our web sevice container, we are ready to use the Docker Application Deployment Connector to deploy our web service to the AWS IoT GreenGrass. Conceptually, this involves following steps:
 
   - Copy the `docker-compose.yml` to some prefix in your [Amazon S3](https://aws.amazon.com/s3/) bucket
-  - Configure [Docker Application Deployment Connector](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) in your AWS IoT GreenGrass Group and deploy the GreenGrass Group
-  - If your web service application is successfully deployed using Docker Application Deployment Connector, you should be able to test the web service running on your Raspberry Pi by using `curl` command, or a web browser. For example, assuming your Raspberry Pi hostname is `ggc`, you can do `curl http://ggc/` and you should see a JSON response:
+  - Configure [Docker Application Deployment Connector](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) in your AWS IoT GreenGrass Group and [deploy the GreenGrass Group](https://docs.aws.amazon.com/greengrass/latest/developerguide/deployments.html)
+  - If the `hello world` web service application is successfully deployed using Docker Application Deployment Connector, you should be able to test the web service running on your Raspberry Pi by using `curl` command, or a web browser. For example, assuming your Raspberry Pi hostname is `ggc`, you can do `curl http://ggc/` and you should see a JSON response:
   
    ```
    {"timestamp": 1586145890.1501749, "message": "Hello world!", "count": 1}
@@ -78,20 +79,20 @@ This step assumes you have already installed Docker on the development machine, 
   - `scp` Thing certifcate, private and public key files to the development EC2 instance sing the SSH key you used to launch the EC2 instance
   - `ssh` into development EC2 instance
   - `cd container-security-gateway-armv7`
-  - Copy Thing certifcate, private and public key files under `device/thing/` folder and renaming the files as follows:
+  - Copy Thing certifcate, private and public key files to `device/thing/` folder, renaming the files as follows:
   ```
   thing-certificate.pem.crt
   thing-private.pem.key
   thing-public.pem.key
   ```
   - `cd device`
-  - Using your favorite editor (`vi`) set the Thing name in `THING` and Thing endpoint in `ENDPOINT` (Do not run this script).
+  - Using your favorite editor (`vi`) set the Thing name in `THING` and Thing endpoint in `ENDPOINT` (Do not run this script). You will find this information in AWS IoT console.
   - `cd ..`
   - `./build-tools/build-and-deploy.sh <aws-region>` to build AWS IoT Docker image and ;push it to [Amazon ECR](https://aws.amazon.com/ecr/). Note the ECR URI for the Docker image. 
   - `cd ..`
   
 ### Configure Docker Compose file
- Edit `docker-compose.yml` to set the ECR URI image you just built in the device part. Unomment the `device` part. Your `docker-compose.yml` should look as follows:
+ Edit `docker-compose.yml` to set the ECR URI image you just built in the `device image`. Uncomment the `device` part. Your `docker-compose.yml` should look as follows:
   
 ```
 version: '3'
@@ -136,3 +137,23 @@ An example shadow document for testing is shown below:
   }
 }
 ```
+
+## Deploying a Lambda function that interacts with local web service
+In this example, we deploy an [AWS Lambda](https://aws.amazon.com/lambda/features/) function to the AWS IoT GreenGrass Group. We communicate with this Lambda function from the AWS IoT cloud by sending message to a named [AWS IoT Topic](https://docs.aws.amazon.com/iot/latest/developerguide/topics.html) 
+
+The named AWS IoT topic is wired to the Lambda function using [AWS IoT GreenGrass Subscription](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html). The Lambda function makes a REST API request to the local `hello world` web service we dployed at the beginning of this tutorial. The Lambda function receives a JSON reponse frome the local web service, and uses the JSON to update its AWS IoT cloud shaodw document. The Lambda function is wired to the AWS IoT cloud shadow using GreenGrass subscription.
+
+### Package and deploy the Lambda function
+
+The Python code for the Lambda function is in [gg-hello-connector.py](lambda/gg-hello-connector/gg-hello-connector.py) file.
+To package and deploy the Lambda function we execute following steps:
+
+  - `cd lambda`
+  - `./lambda-deployment.sh  gg-hello-connector requests greengrasssdk` to create a Lambda deployment package
+  - `cd gg-hello-connector`
+  -  `zip -g ../gg-hello-connector.zip  gg-hello-connector.py` to add the Python code file to the package
+  - Use AWS Lambda console to deploy the `gg-hello-connector.zip` package to create a new AWS Lambda function named `gg-hello-connector`
+  - Publish the Lambda function as a new version
+  - [Configure the Lambda function for the AWS IoT GreenGrass Group](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html)
+  - [Configure AWS IoT GreenGrass subscription](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html) to connect a named AWS IoT cloud topic to the Lambda function
+  - Configure AWS IoT GreenGrass subscription to connect Lambda function to its AWS IoT shadow topic
