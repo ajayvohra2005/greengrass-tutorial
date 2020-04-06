@@ -64,7 +64,7 @@ Now that we have a Docker image pushed in the ECR and a `docker-compose.yml` def
    
 ## Running an AWS IoT Device using Docker Application Deployment connector
 
-In this example, we run an AWS IoT device that emulates a security gateway.The Python code for this security gateway is in the [security_gatewya.py](docker/container-security-gateway-armv7/device/security_gateway.py) file.
+In this example, we run an AWS IoT device that emulates a security gateway.The Python code for this security gateway is in the [security_gateway.py](docker/container-security-gateway-armv7/device/security_gateway.py) file.
 
 This example is similar to the previous example except in this case instead of running a web service, we will run an AWS IoT device  inside a Docker container on the GreenGrass. This device will connect to its ebdpoint in the AWS IoT cloud, not the local GreenGrass endpoint.  This device will *not* be part of any [AWS IoT GreenGrass Group](https://docs.aws.amazon.com/greengrass/latest/developerguide/what-is-gg.html).
 
