@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     resp_json = resp.json()
     logger.info(str(resp_json))
    
-    thingName='raspi-gg-superior'
+    thingName=
     shadow_update = f'$aws/things/{thingName}/shadow/update'
 
     msg={}
