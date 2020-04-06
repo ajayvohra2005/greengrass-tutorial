@@ -27,10 +27,10 @@ In this use case, we run a hello world web service in AWS IoT GreenGrass on Rasp
   - `cd container-hello-armv7`
   - `./build-tools/build-and-deploy.sh <aws-region>` to build hello world Docker image and ;push it to [Amazon ECR](https://aws.amazon.com/ecr/). Note the ECR URI for the Docker image. 
   - `cd ..`
-  - Edit `docker-compose.yml` to set the ECR URI image for the web service. Comment out the `device` part. Your file should look as follows:
+  - Edit `docker-compose.yml` to set the ECR URI image for the web service. Comment out the `device` part. Your `docker-compose.yml` should look as follows:
   
-  ```
-  version: '3'
+```
+version: '3'
 services:
   web:
     image: <ECR URI here>
@@ -38,4 +38,18 @@ services:
       - '80:5000'
   #device:
     #image:
+```
+### Deploy Docker Application Connector
+
+Now that we have a Docker image pushed in the ECR and a `docker-compose.yml` defiend to run our web sevice container, we are ready to use the Docker Application Deployment Connector to deploy our web service to the AWS IoT GreenGrass. Conceptually, this involves following steps:
+
+  - Copy the `docker-compose.yml` to some prefix in your [Amazon S3](https://aws.amazon.com/s3/) bucket
+  - Use [Docker Application Deployment Connector](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) in your AWS IoT GreenGrass Group to deploy the hello world web service to the GreenGrass running on the Rspberry Pi
+  - If your web service application is deployed successfully on the GreenGrass, you should be able to test the web service by using `curl` or a browser. For example, assuming Raspberry Pi hostname is `ggc`, you can do `curl http://ggc/` and you should see a JSON response:
+  
    ```
+   {"timestamp": 1586145890.1501749, "message": "Hello world!", "count": 1}
+   
+   ```
+   Of course, the timestamp and the count will vary.
+   
