@@ -2,7 +2,6 @@
 
 This is an [AWS IoT GreenGrass](https://aws.amazon.com/greengrass/) advanced tutorial for following use cases:
   - Deploying a web service using [Docker Application Deployment](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) connector
-  - Deploying a Lambda function in AWS IoT GreenGrass
   - Deploying an AWS IoT device using Docker Application Deployment coneector
   
 ## Hardwware and OS requirements
@@ -21,9 +20,22 @@ This is an [AWS IoT GreenGrass](https://aws.amazon.com/greengrass/) advanced tut
 ### Launch EC2 instance for development
 In this use case, we run a hello world web service in AWS IoT GreenGrass on Raspberry Pi (Armv7) using Docker Application Deployment Connector. For this use case, we need to build a Docker image for Armv7 architecture. Therefore, we need access to a developer machine based on Armv7 architecture. So let us [launch an Amazon EC2](https://docs.aws.amazon.com/quickstarts/latest/vmlaunch/step-1-launch-instance.html) `a1.xlarge` instance using this [Amazon Machine Image](https://aws.amazon.com/marketplace/pp/Canonical-Group-Limited-Ubuntu-1604-LTS-Xenial-Arm/B07KTDC2HN), with 50 GB Amazon Elastic Block Store volume. Even though `a1.xlarge` instance is based on Arm64 architecture, it allows us to build Docker images for Armv7 architecture.
 
-### Setup EC2 instance for development
+### Build Docker image for web service
   - `ssh` into EC2 instance using the SSH key you used to launch the EC2 instance.
   - `cd docker`
   - `./arm-docker.sh` to install Docker engine on the development machine
   - `cd container-hello-armv7`
-  - `./build-tools/build-and-deploy.sh <aws-region>` to build hello world web service Docker image
+  - `./build-tools/build-and-deploy.sh <aws-region>` to build hello world Docker image and ;push it to [Amazon ECR](https://aws.amazon.com/ecr/). Note the ECR URI for the Docker image. 
+  - `cd ..`
+  - Edit `docker-compose.yml` to set the ECR URI image for the web service. Comment out the `device` part. Your file should look as follows:
+  
+  ```
+  version: '3'
+services:
+  web:
+    image: <ECR URI here>
+    ports:
+      - '80:5000'
+  #device:
+    #image:
+   ```
