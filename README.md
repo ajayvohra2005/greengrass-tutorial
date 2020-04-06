@@ -155,6 +155,8 @@ To package and deploy the Lambda function we execute following steps:
   - Use AWS management console to deploy the `gg-hello-connector.zip` package to create a new AWS Lambda function named `gg-hello-connector`
   - Publish the Lambda function as a new version
   - [Configure the Lambda function for the AWS IoT GreenGrass Group](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html)
+      - Configure the Lambda function to run outside a Docker container so it can access local web service 
+      - Configure the Lambda function to run on demand
   - [Configure AWS IoT GreenGrass subscription](https://docs.aws.amazon.com/greengrass/latest/developerguide/config-lambda.html) to connect a named AWS IoT cloud topic to the Lambda function
   - Configure AWS IoT GreenGrass subscription to connect Lambda function to its AWS IoT shadow topic
   
