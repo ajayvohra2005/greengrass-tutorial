@@ -1,8 +1,8 @@
-# AWS IoT GreenGrass Tutorial
+# AWS IoT GreenGrass Tutoria
 
 This is an *advanced* tutorial on following [AWS IoT GreenGrass](https://aws.amazon.com/greengrass/) use cases:
   - Running a `hello world` web service using [Docker Application Deployment](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) connector
-  - Running an AWS IoT device using Docker Application Deployment coneector
+  - Running an AWS IoT device using Docker Application Deployment connector
   - Running a Lambda function in GreenGrass that interacts with the `hello world` local web service
 
 The tutorial does not detail every step, encourgaing the reader to explore the [Getting started with AWS IoT GreenGrass](https://docs.aws.amazon.com/greengrass/latest/developerguide/gg-gs.html) modules and other AWS online documentation resources.
