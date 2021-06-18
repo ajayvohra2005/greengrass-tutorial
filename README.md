@@ -1,4 +1,4 @@
-# AWS IoT GreenGrass Tutoria
+# AWS IoT GreenGrass Tutorial
 
 This is an *advanced* tutorial on following [AWS IoT GreenGrass](https://aws.amazon.com/greengrass/) use cases:
   - Running a `hello world` web service using [Docker Application Deployment](https://docs.aws.amazon.com/greengrass/latest/developerguide/docker-app-connector.html) connector
